@@ -63,6 +63,21 @@ enum claw_command_index {
 	CLAW_COMMAND_TYPE_RESET_DEVICE =		0x28,
 };
 
+/*
+ * Calibration control (0xfd) subcommands, used by the MCU stick/trigger
+ * calibration flow. Status polls are acked with 0xfe and carry a bitmask of
+ * calibrated components: bit 0 LT, bit 1 RT, bit 2 LS, bit 3 RS, bit 4 motion.
+ *
+ * Reverse engineered from MSI Center M (API_ControlMode.dll) and verified on
+ * a Claw 8 AI+ A2VM (bcdDevice 2.30).
+ */
+enum claw_calibration_index {
+	CLAW_CALIBRATION_ENTER =	0x00,
+	CLAW_CALIBRATION_COMPLETE =	0x01,
+	CLAW_CALIBRATION_CANCEL =	0x02,
+	CLAW_CALIBRATION_GET_STATUS =	0x03,
+};
+
 enum claw_gamepad_mode_index {
 	CLAW_GAMEPAD_MODE_XINPUT =	0x01,
 	CLAW_GAMEPAD_MODE_DINPUT =	0x02,
@@ -277,6 +292,19 @@ static const u16 rgb_addr_new = 0x024a;
 static const u16 rumble_addr[] = {
 	0x0022,  /* left  */
 	0x0023,  /* right */
+};
+
+/*
+ * Profile (EEPROM) addresses of the stick/trigger calibration tables, read
+ * by MSI Center M during its calibration flow. Not referenced by the driver
+ * yet; documented so future calibration support starts from known offsets.
+ */
+static const u16 calibration_addr[] = {
+	0x026f,  /* LT */
+	0x0293,  /* RT */
+	0x02b7,  /* LS */
+	0x02db,  /* RS */
+	0x02ff,  /* motion */
 };
 
 struct claw_command_report {
